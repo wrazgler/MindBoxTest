@@ -1,0 +1,59 @@
+﻿@model MindBoxTest2.ViewModels.DeleteProductViewModel
+
+@{
+    ViewBag.Title = "Удалить продукт";
+}
+
+<div class="container text-custom justify-content-center" style="margin-top: 10%">
+    @if (Model != null)
+    {
+        <form asp-action="DeleteProduct" asp-controller="Home"  asp-antiforgery="true" asp-route-id="@Model.Product.Id" asp-route-page="@Model.Page">
+            <div class="form-group text-center" style="margin-bottom: 25px">
+                <h2>Удалить: <a style="color: red;">@Model.Product.Name</a></h2>
+            </div>
+            <div class="form-group" style="margin-bottom: 25px">
+                <table class="table text-custom">
+                    <tr>
+                        <th width="30%">
+                            <a style="color: #0066CC">Продукт</a>
+                        </th>
+                        <th>
+                            <a style="color: #0066CC">Категория</a>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td width="30%">
+                            <input type="hidden" asp-for="@Model.Product.Id" />
+                            <input type="hidden" asp-for="@Model.Product.Name" />
+                            <a>@Model.Product.Name</a>
+                        </td>
+                        <td>
+                            <input type="hidden" asp-for="@Model.Product.Categories" />
+                            @foreach (var category in Model.Product.Categories.OrderBy(c => c.Name))
+                            {
+                                <a>@category.Name</a>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div class=" form-group text-center">
+                <input type="submit" class="btn btn-danger btn-custom" value="Удалить" />
+                <a class="btn btn-outline-secondary btn-custom" asp-action="Index" asp-controller="Home" asp-route-page="@Model.Page">Назад</a>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="form-group text-center" style="margin-bottom: 25px">
+            <h2>Продукт не существует</h2>
+        </div>
+        <div class="form-group text-center">
+            <a class="btn btn-lg btn-primary" asp-action="Index" asp-controller="Home">Назад</a>
+        </div>
+    }
+</div>

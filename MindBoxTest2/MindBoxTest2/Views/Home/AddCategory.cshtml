@@ -1,0 +1,22 @@
+﻿@model MindBoxTest2.ViewModels.AddCategoryViewModel
+
+@{
+    ViewBag.Title = "Добавить Категорию";
+}
+
+<div class="container custom text-custom" style="margin-top: 10%">
+    <form asp-action="AddCategory" asp-controller="Home" asp-route-page="@Model.Page">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group text-center" style="margin-bottom: 25px">
+            <h2>@ViewBag.Title</h2>
+        </div>
+        <div class="form-group" style="margin-bottom: 25px">
+            <label asp-for="Name" class="control-label">Название</label>
+            <input type="text" asp-for="Name" class="form-control" />
+        </div>
+        <div class="form-group text-center">
+            <input type="submit" value="Сохранить" class="btn btn-primary btn-custom" />
+            <a class="btn btn-outline-secondary btn-custom" asp-action="@Model.PreviousPage" asp-controller="Home" asp-route-id="@Model.Id" asp-route-page="@Model.Page">Назад</a>
+        </div>
+    </form>
+</div>

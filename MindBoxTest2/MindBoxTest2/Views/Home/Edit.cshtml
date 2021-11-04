@@ -1,0 +1,45 @@
+﻿@model MindBoxTest2.ViewModels.EditViewModel
+
+@{
+    ViewBag.Title = "Редактирование продукта";
+}
+
+<div class="container custom text-custom" style="margin-top: 10%">
+    <form asp-action="Edit" asp-controller="Home" asp-antiforgery="true">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group text-center" style="margin-bottom: 25px">
+            <h2>Изменить: <a style="color: #0066cc;">@Model.Product.Name</a></h2>
+        </div>
+        <div class="form-group">
+            <input type="hidden" asp-for="@Model.Product.Id" />
+            <input type="hidden" asp-for="@Model.Page" />
+        </div>
+        <div class="form-group" style="margin-bottom: 25px">
+            <label asp-for="@Model.Product.Name" class="control-label">Название</label>
+            <input type="text" asp-for="@Model.Product.Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <a font-size: 20px;" asp-action="AddCategory" asp-controller="Home" asp-route-id="@Model.Product.Id" asp-route-page="@Model.Page" asp-route-previousPage="Edit">Добавить категорию</a>
+        </div>
+        <div class="form-group" style="margin-bottom: 25px">
+            @for (int i = 0; i < Model.Selected.Count; i++)
+            {
+                <div class=" checkbox">
+                    <input class="custom-checkbox text-center"
+                           type="checkbox"
+                           asp-for="@Model.Selected[i].IsChecked"
+                           checked="@Model.Selected[i].IsChecked" />
+                    <label asp-for="@Model.Selected[i].IsChecked">@Model.Selected[i].Name</label>
+                </div>
+                <div>
+                    <input type="hidden" asp-for="@Model.Selected[i].Name" />
+                    <input type="hidden" asp-for="@Model.Selected[i].Id" />
+                </div>
+            }
+        </div>
+        <div class="form-group text-center">
+            <input type="submit" value="Сохранить" class="btn btn-primary btn-custom" />
+            <a class="btn btn-outline-secondary btn-custom" asp-action="Index" asp-controller="Home" asp-route-page="@Model.Page">Назад</a>
+        </div>
+    </form>
+</div>
