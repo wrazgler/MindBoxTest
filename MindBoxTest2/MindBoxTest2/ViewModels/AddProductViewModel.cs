@@ -8,13 +8,11 @@ namespace MindBoxTest2.ViewModels
     {
         public int Page { get; set; }
         public string Name { get; set; }
-        public List<Category> Categories { get; set; }
-        public IList<SelectItem> Selected { get; set; }
+        public CheckBoxViewModel Selected { get; set; }
 
         public AddProductViewModel()
         {
-            Categories = new List<Category>();
-            Selected = new List<SelectItem>();
+            Selected = new CheckBoxViewModel();
         }
     }
 }

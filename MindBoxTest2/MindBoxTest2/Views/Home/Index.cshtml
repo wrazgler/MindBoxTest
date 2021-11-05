@@ -12,7 +12,7 @@
             </div>
             <div class="form-group">
                 <label>Категория: </label>
-                <select name="category" asp-items="Model.FilterViewModel.Categories" class="form-control border-dark form-custom "></select>
+                <select name="category" asp-items="@Model.FilterViewModel.Categories" class="form-control border-dark form-custom "></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Фильтр" class="btn btn-outline-dark btn-custom" />
@@ -75,7 +75,7 @@
 
     </table>
 
-    <page-link page-model="Model.PageViewModel" page-action="Index"
+    <page-link page-model="@Model.PageViewModel" page-action="Index"
                page-url-product="@(Model.FilterViewModel.SelectedProduct)"
                page-url-category="@(Model.FilterViewModel.SelectedCategory)"
                page-url-sortorder="@(Model.SortViewModel.Current)"></page-link>

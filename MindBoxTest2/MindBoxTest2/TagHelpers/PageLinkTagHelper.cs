@@ -27,16 +27,16 @@ namespace MindBoxTest2.TagHelpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
+            var urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
             output.TagName = "div";
 
-            TagBuilder tag = new TagBuilder("ul");
+            var tag = new TagBuilder("ul");
             tag.AddCssClass("pagination");
             tag.AddCssClass("justify-content-center");
 
             if (PageModel.HasPreviousPage)
             {
-                TagBuilder prevItem = CreateTag(PageModel.PageNumber - 1, urlHelper, true);
+                var prevItem = CreateTag(PageModel.PageNumber - 1, urlHelper, true);
                 prevItem.MergeAttribute("style", "margin-right: 10px;");
                 tag.InnerHtml.AppendHtml(prevItem);
                 prevItem = CreateTag(PageModel.PageNumber - 1, urlHelper, false);
@@ -44,13 +44,13 @@ namespace MindBoxTest2.TagHelpers
                 tag.InnerHtml.AppendHtml(prevItem);
             }
 
-            TagBuilder currentItem = CreateTag(PageModel.PageNumber, urlHelper, false);
+            var currentItem = CreateTag(PageModel.PageNumber, urlHelper, false);
             tag.InnerHtml.AppendHtml(currentItem);
 
 
             if (PageModel.HasNextPage)
             {
-                TagBuilder nextItem = CreateTag(PageModel.PageNumber + 1, urlHelper, false);
+                var nextItem = CreateTag(PageModel.PageNumber + 1, urlHelper, false);
                 nextItem.MergeAttribute("style", "margin-left: 10px;");
                 tag.InnerHtml.AppendHtml(nextItem);
                 nextItem = CreateTag(PageModel.PageNumber + 1, urlHelper, true);
@@ -62,8 +62,8 @@ namespace MindBoxTest2.TagHelpers
 
         TagBuilder CreateTag(int pageNumber, IUrlHelper urlHelper, bool corner)
         {
-            TagBuilder item = new TagBuilder("li");
-            TagBuilder link = new TagBuilder("a");
+            var item = new TagBuilder("li");
+            var link = new TagBuilder("a");
             if (pageNumber == this.PageModel.PageNumber)
             {
                 link.AddCssClass("active");

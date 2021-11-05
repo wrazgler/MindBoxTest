@@ -22,18 +22,18 @@
             <a font-size: 20px;" asp-action="AddCategory" asp-controller="Home" asp-route-id="@Model.Product.Id" asp-route-page="@Model.Page" asp-route-previousPage="Edit">Добавить категорию</a>
         </div>
         <div class="form-group" style="margin-bottom: 25px">
-            @for (int i = 0; i < Model.Selected.Count; i++)
+            @for (int i = 0; i < Model.Selected.ChekList.Count; i++)
             {
                 <div class=" checkbox">
                     <input class="custom-checkbox text-center"
                            type="checkbox"
-                           asp-for="@Model.Selected[i].IsChecked"
-                           checked="@Model.Selected[i].IsChecked" />
-                    <label asp-for="@Model.Selected[i].IsChecked">@Model.Selected[i].Name</label>
+                           asp-for="@Model.Selected.ChekList[i].IsChecked"
+                           checked="@Model.Selected.ChekList[i].IsChecked" />
+                    <label asp-for="@Model.Selected.ChekList[i].IsChecked">@Model.Selected.ChekList[i].Name</label>
                 </div>
                 <div>
-                    <input type="hidden" asp-for="@Model.Selected[i].Name" />
-                    <input type="hidden" asp-for="@Model.Selected[i].Id" />
+                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Name" />
+                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Id" />
                 </div>
             }
         </div>

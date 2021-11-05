@@ -34,9 +34,9 @@ namespace MindBoxTest2.Controllers
         {
             var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
 
-            var selected = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name, IsChecked = false }).ToList();
+            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
 
-            var model = new AddProductViewModel() { Page = page, Categories = categories, Selected = selected };
+            var model = new AddProductViewModel() { Page = page, Selected = selected };
             return View(model);
         }
 
@@ -62,7 +62,7 @@ namespace MindBoxTest2.Controllers
             if (!ModelState.IsValid) return View(model);
 
             await _pm.AddCategoryAsync(_db, model.Name);
-            return RedirectToAction("Edit", "Home", new { id = model.Id, page = model.Page });
+            return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
         }
 
 
@@ -88,9 +88,9 @@ namespace MindBoxTest2.Controllers
         {
             var categories = await _db.Categories.OrderBy(c => c.Name).ToListAsync();
 
-            var selected = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name, IsChecked = false }).ToList();
+            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
 
-            var model = new DeleteCategoryViewModel() { Page = page, Categories = categories, Selected = selected };
+            var model = new DeleteCategoryViewModel() { Page = page, Selected = selected };
 
             return View(model);
         }
@@ -109,9 +109,9 @@ namespace MindBoxTest2.Controllers
 
             var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
 
-            var selected = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList();
+            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
 
-            foreach (var item in selected)
+            foreach (var item in selected.ChekList)
             {
                 if (product.Categories.Contains(categories.FirstOrDefault(c => c.Name == item.Name)))
                 {
@@ -123,7 +123,7 @@ namespace MindBoxTest2.Controllers
                 }
             }
 
-            var model = new EditViewModel() { Page = page, Product = product, Categories = categories, Selected = selected };
+            var model = new EditViewModel() { Page = page, Product = product, Selected = selected };
 
             return View(model);
         }

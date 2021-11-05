@@ -21,7 +21,7 @@ namespace MindBoxTest2.Models
             
             if (model.Selected != null)
             {
-                foreach (var item in model.Selected)
+                foreach (var item in model.Selected.ChekList)
                 {
                     var category = await GetCategoryAsync(db, item.Id);
 
@@ -63,7 +63,7 @@ namespace MindBoxTest2.Models
         {
             if (model.Selected != null)
             {
-                foreach (var item in model.Selected)
+                foreach (var item in model.Selected.ChekList)
                 {
                     var category = await GetCategoryAsync(db, item.Id);
 
@@ -88,7 +88,7 @@ namespace MindBoxTest2.Models
             
             if(model.Selected != null)
             {
-                foreach (var item in model.Selected)
+                foreach (var item in model.Selected.ChekList)
                 {
                     var category = await GetCategoryAsync(db, item.Id);
 
