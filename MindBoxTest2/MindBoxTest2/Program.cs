@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 
 using MindBoxTest2.Models;
+using MindBoxTest2.Services;
 
 namespace MindBoxTest2
 {
@@ -20,7 +21,7 @@ namespace MindBoxTest2
                 try
                 {
                     var context = services.GetRequiredService<ProductDbContext>();
-                    ProductDbData.Initialize(context);
+                    SampleData.Initialize(context);
                 }
                 catch (Exception ex)
                 {

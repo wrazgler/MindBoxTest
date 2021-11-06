@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MindBoxTest2.Models
 {
-    public class ProductDbData
+    public class SampleData
     {
         public static void Initialize(ProductDbContext context)
         {

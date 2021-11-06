@@ -11,8 +11,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using MindBoxTest2.Models;
+using MindBoxTest2.Services;
 
-namespace MindBoxTest2
+namespace MindBoxTest2.Services
 {
     public class Startup
     {
@@ -26,7 +27,8 @@ namespace MindBoxTest2
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ProductDbContext>(options => options.UseSqlServer(connection));
-            services.AddSingleton<IProductManager, ProductManager>();
+            services.AddSingleton<ICategoryService, CategoryService>();
+            services.AddSingleton<IProductService, ProductService>();
             services.AddControllersWithViews();
         }
 

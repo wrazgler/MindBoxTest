@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text;
-using System;
-using System.Collections.Generic;
 
 using MindBoxTest2.Models;
+using MindBoxTest2.Services;
 using MindBoxTest2.ViewModels;
 
 namespace MindBoxTest2.Controllers
@@ -14,10 +13,13 @@ namespace MindBoxTest2.Controllers
     public class HomeController : Controller
     {
         private readonly ProductDbContext _db;
-        private readonly IProductManager _pm;
-        public HomeController(IProductManager productManager, ProductDbContext context)
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+
+        public HomeController(ICategoryService categoryService, IProductService productService,  ProductDbContext context)
         {
-            _pm = productManager;
+            _categoryService = categoryService;
+            _productService = productService;
             _db = context;
         }
 
@@ -25,7 +27,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> Index(string product, int? category, int page = 1,
             SortState sortOrder = SortState.ProductAsc)
         {
-            var model = await _pm.IndexAsync(_db, product, category, page, sortOrder);
+            var model = await _productService.IndexAsync(_db, product, category, page, sortOrder);
             return View(model);
         }
 
@@ -45,7 +47,7 @@ namespace MindBoxTest2.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            await _pm.AddProductAsync(_db, model);
+            await _productService.AddProductAsync(_db, _categoryService, model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -61,7 +63,7 @@ namespace MindBoxTest2.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            await _pm.AddCategoryAsync(_db, model.Name);
+            await _categoryService.AddCategoryAsync(_db, model.Name);
             return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
         }
 
@@ -69,7 +71,7 @@ namespace MindBoxTest2.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteProduct(int id, int page = 1)
         {
-            var product = await _pm.GetProductAsync(_db, id);
+            var product = await _productService.GetProductAsync(_db, id);
             var model = new DeleteProductViewModel { Product = product, Page = page};
             return View(model);
         }
@@ -79,7 +81,7 @@ namespace MindBoxTest2.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            await _pm.DeleteProductAsync(_db, model.Product.Id);
+            await _productService.DeleteProductAsync(_db, model.Product.Id);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -98,14 +100,14 @@ namespace MindBoxTest2.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCategory(DeleteCategoryViewModel model)
         {
-            await _pm.DeleteCategoryAsync(_db, model);
+            await _categoryService.DeleteCategoryAsync(_db, model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id, int page = 1)
         {
-            var product = await _pm.GetProductAsync(_db, id);
+            var product = await _productService.GetProductAsync(_db, id);
 
             var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
 
@@ -133,7 +135,7 @@ namespace MindBoxTest2.Controllers
         {
             if (!ModelState.IsValid) return View(model); 
 
-            await _pm.EditAsync(_db, model);
+            await _productService.EditAsync(_db, _categoryService, model);
 
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }

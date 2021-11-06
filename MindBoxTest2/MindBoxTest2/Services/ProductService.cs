@@ -3,13 +3,14 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
+using MindBoxTest2.Models;
 using MindBoxTest2.ViewModels;
 
-namespace MindBoxTest2.Models
+namespace MindBoxTest2.Services
 {
-    public class ProductManager : IProductManager
+    public class ProductService : IProductService
     {
-        public async Task AddProductAsync(ProductDbContext db, AddProductViewModel model)
+        public async Task AddProductAsync(ProductDbContext db, ICategoryService categoryService, AddProductViewModel model)
         {
             if (model.Name == null) return;
 
@@ -23,7 +24,7 @@ namespace MindBoxTest2.Models
             {
                 foreach (var item in model.Selected.ChekList)
                 {
-                    var category = await GetCategoryAsync(db, item.Id);
+                    var category = await categoryService.GetCategoryAsync(db, item.Id);
 
                     if (item.IsChecked)
                     {
@@ -32,20 +33,6 @@ namespace MindBoxTest2.Models
                 }
             }
             db.Products.Add(product);
-
-            await db.SaveChangesAsync();
-        }
-
-        public async Task AddCategoryAsync(ProductDbContext db, string name)
-        {
-            if (name == null) return;
-
-            var category = await db.Categories.FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower());
-
-            if (category != null) return;
-
-            category = new Category { Name = name };
-            db.Categories.Add(category);
 
             await db.SaveChangesAsync();
         }
@@ -59,24 +46,8 @@ namespace MindBoxTest2.Models
             db.Products.Remove(product);
             await db.SaveChangesAsync();
         }
-        public async Task DeleteCategoryAsync(ProductDbContext db, DeleteCategoryViewModel model)
-        {
-            if (model.Selected != null)
-            {
-                foreach (var item in model.Selected.ChekList)
-                {
-                    var category = await GetCategoryAsync(db, item.Id);
 
-                    if (item.IsChecked && category != null)
-                    {
-                        db.Categories.Remove(category);
-                    }
-                }
-            }
-            await db.SaveChangesAsync();
-        }
-
-        public async Task<Product> EditAsync(ProductDbContext db, EditViewModel model)
+        public async Task<Product> EditAsync(ProductDbContext db, ICategoryService categoryService, EditViewModel model)
         {
             if (model == null) return null;
 
@@ -90,7 +61,7 @@ namespace MindBoxTest2.Models
             {
                 foreach (var item in model.Selected.ChekList)
                 {
-                    var category = await GetCategoryAsync(db, item.Id);
+                    var category = await categoryService.GetCategoryAsync(db, item.Id);
 
                     if (item.IsChecked && !product.Categories.Contains(category))
                     {
@@ -154,12 +125,6 @@ namespace MindBoxTest2.Models
         {
             var product = await db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
             return product;
-        }
-
-        public async Task<Category> GetCategoryAsync(ProductDbContext db, int id)
-        {
-            var category = await db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == id);
-            return category;
         }
     }
 }
