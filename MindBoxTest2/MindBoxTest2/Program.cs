@@ -20,7 +20,7 @@ namespace MindBoxTest2
 
                 try
                 {
-                    var context = services.GetRequiredService<ProductDbContext>();
+                    var context = services.GetRequiredService<ApplicationDbContext>();
                     SampleData.Initialize(context);
                 }
                 catch (Exception ex)

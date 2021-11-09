@@ -26,9 +26,9 @@ namespace MindBoxTest2.Services
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<ProductDbContext>(options => options.UseSqlServer(connection));
-            services.AddSingleton<ICategoryService, CategoryService>();
-            services.AddSingleton<IProductService, ProductService>();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
+            services.AddSingleton<ICategoryService> (new CategoryService(connection));
+            services.AddSingleton<IProductService> (new ProductService(connection));
             services.AddControllersWithViews();
         }
 

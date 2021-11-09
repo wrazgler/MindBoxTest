@@ -5,7 +5,7 @@ namespace MindBoxTest2.Models
 {
     public class SampleData
     {
-        public static void Initialize(ProductDbContext context)
+        public static void Initialize(ApplicationDbContext context)
         {
             if (!context.Products.Any())
             {

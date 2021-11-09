@@ -28,11 +28,11 @@
                            type="checkbox"
                            asp-for="@Model.Selected.ChekList[i].IsChecked"
                            checked="@Model.Selected.ChekList[i].IsChecked" />
-                    <label asp-for="@Model.Selected.ChekList[i].IsChecked">@Model.Selected.ChekList[i].Name</label>
+                    <label asp-for="@Model.Selected.ChekList[i].IsChecked">@Model.Selected.ChekList[i].Category.Name</label>
                 </div>
                 <div>
-                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Name" />
-                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Id" />
+                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Category.Name" />
+                    <input type="hidden" asp-for="@Model.Selected.ChekList[i].Category.Id" />
                 </div>
             }
         </div>

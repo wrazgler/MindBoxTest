@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,32 +11,26 @@ namespace MindBoxTest2.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ProductDbContext _db;
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
 
-        public HomeController(ICategoryService categoryService, IProductService productService,  ProductDbContext context)
+        public HomeController(ICategoryService categoryService, IProductService productService)
         {
             _categoryService = categoryService;
             _productService = productService;
-            _db = context;
-        }
+        }  
 
         [HttpGet]
-        public async Task<IActionResult> Index(string product, int? category, int page = 1,
-            SortState sortOrder = SortState.ProductAsc)
+        public async Task<IActionResult> Index(string product, int? category, int page = 1, SortState sortOrder = SortState.ProductAsc)
         {
-            var model = await _productService.IndexAsync(_db, product, category, page, sortOrder);
+            var model = await _productService.IndexAsync(product, category, page, sortOrder);
             return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> AddProduct(int page = 1)
         {
-            var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
-
-            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
-
+            var selected = await _categoryService.GetSelectedAsync();
             var model = new AddProductViewModel() { Page = page, Selected = selected };
             return View(model);
         }
@@ -46,8 +39,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> AddProduct(AddProductViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-
-            await _productService.AddProductAsync(_db, _categoryService, model);
+            await _productService.AddProductAsync(model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -62,8 +54,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> AddCategory(AddCategoryViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-
-            await _categoryService.AddCategoryAsync(_db, model.Name);
+            await _categoryService.AddCategoryAsync(model.Name);
             return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
         }
 
@@ -71,7 +62,7 @@ namespace MindBoxTest2.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteProduct(int id, int page = 1)
         {
-            var product = await _productService.GetProductAsync(_db, id);
+            var product = await _productService.GetProductAsync(id);
             var model = new DeleteProductViewModel { Product = product, Page = page};
             return View(model);
         }
@@ -80,53 +71,29 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> DeleteProduct(DeleteProductViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-
-            await _productService.DeleteProductAsync(_db, model.Product.Id);
+            await _productService.DeleteProductAsync(model.Product.Id);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
         [HttpGet]
         public async Task<IActionResult> DeleteCategory(int page = 1)
         {
-            var categories = await _db.Categories.OrderBy(c => c.Name).ToListAsync();
-
-            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
-
+            var selected = await _categoryService.GetSelectedAsync();
             var model = new DeleteCategoryViewModel() { Page = page, Selected = selected };
-
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteCategory(DeleteCategoryViewModel model)
         {
-            await _categoryService.DeleteCategoryAsync(_db, model);
+            await _categoryService.DeleteCategoryAsync(model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id, int page = 1)
         {
-            var product = await _productService.GetProductAsync(_db, id);
-
-            var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
-
-            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Id = c.Id, Name = c.Name }).ToList() };
-
-            foreach (var item in selected.ChekList)
-            {
-                if (product.Categories.Contains(categories.FirstOrDefault(c => c.Name == item.Name)))
-                {
-                    item.IsChecked = true;
-                }
-                else
-                {
-                    item.IsChecked = false;
-                }
-            }
-
-            var model = new EditViewModel() { Page = page, Product = product, Selected = selected };
-
+            var model = await _productService.EditGetAsync(id, page);
             return View(model);
         }
 
@@ -134,11 +101,8 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> Edit(EditViewModel model)
         {
             if (!ModelState.IsValid) return View(model); 
-
-            await _productService.EditAsync(_db, _categoryService, model);
-
+            await _productService.EditPostAsync(model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
-
     }
 }

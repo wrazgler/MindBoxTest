@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using MindBoxTest2.Models;
@@ -8,41 +10,56 @@ namespace MindBoxTest2.Services
 {
     public class CategoryService : ICategoryService
     {
-        public async Task AddCategoryAsync(ProductDbContext db, string name)
+        private readonly string _connection;
+        public CategoryService(string connectionString) 
         {
-            if (name == null) return;
+            _connection = connectionString;
+        }
+        public async Task AddCategoryAsync(string name)
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            {
+                if (name == null) return;
 
-            var category = await db.Categories.FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower());
+                var category = await db.Categories.FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower());
 
-            if (category != null) return;
+                if (category != null) return;
 
-            category = new Category { Name = name };
-            db.Categories.Add(category);
+                category = new Category { Name = name };
+                db.Categories.Add(category);
 
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+            }
         }
 
-        public async Task DeleteCategoryAsync(ProductDbContext db, DeleteCategoryViewModel model)
+        public async Task DeleteCategoryAsync(DeleteCategoryViewModel model)
         {
-            if (model.Selected != null)
+            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
             {
-                foreach (var item in model.Selected.ChekList)
+                if (model.Selected != null)
                 {
-                    var category = await GetCategoryAsync(db, item.Id);
-
-                    if (item.IsChecked && category != null)
+                    foreach (var item in model.Selected.ChekList)
                     {
-                        db.Categories.Remove(category);
+                        var category = await db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == item.Category.Id);
+
+                        if (item.IsChecked && category != null)
+                        {
+                            db.Categories.Remove(category);
+                        }
                     }
                 }
-            }
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+            }   
         }
 
-        public async Task<Category> GetCategoryAsync(ProductDbContext db, int id)
+        public async Task<CheckBoxViewModel> GetSelectedAsync()
         {
-            var category = await db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == id);
-            return category;
+            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            {
+                var categories = await db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
+                var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Category = c }).ToList() };
+                return selected;
+            }
         }
     }
 }

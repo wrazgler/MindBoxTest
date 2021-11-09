@@ -7,15 +7,16 @@ namespace MindBoxTest2.Services
 {
     public interface IProductService
     {
-        Task AddProductAsync(ProductDbContext db, ICategoryService categoryService, AddProductViewModel model);
+        Task AddProductAsync(AddProductViewModel model);
 
-        Task DeleteProductAsync(ProductDbContext db, int id);
+        Task DeleteProductAsync(int id);
 
-        Task<Product> EditAsync(ProductDbContext db, ICategoryService categoryService, EditViewModel model);
+        Task<EditViewModel> EditGetAsync(int id, int page = 1);
 
-        Task<IndexViewModel> IndexAsync(ProductDbContext db, string product, int? category, int page = 1,
-            SortState sortOrder = SortState.ProductAsc);
+        Task EditPostAsync(EditViewModel model);
 
-        Task<Product> GetProductAsync(ProductDbContext db, int id);
+        Task<IndexViewModel> IndexAsync(string product, int? category, int page, SortState sortOrder);
+
+        Task<Product> GetProductAsync(int id);
     }
 }

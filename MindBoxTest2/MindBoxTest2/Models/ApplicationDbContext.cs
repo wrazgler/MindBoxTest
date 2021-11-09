@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace MindBoxTest2.Models
 {
-    public class ProductDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-        public ProductDbContext(DbContextOptions<ProductDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
             Database.EnsureCreated();
