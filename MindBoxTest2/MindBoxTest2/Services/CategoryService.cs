@@ -20,12 +20,13 @@ namespace MindBoxTest2.Services
         public async Task AddCategoryAsync(string name)
         {
             if (name == null) return;
+            var categories =  _db.Categories.ToList();
+            foreach (var c in categories)
+            {
+                if (c.Name.ToLower() == name.ToLower()) return;
+            }
 
-            var category = await _db.Categories.FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower());
-
-            if (category != null) return;
-
-            category = new Category { Name = name };
+            var category = new Category { Name = name };
             _db.Categories.Add(category);
 
             await _db.SaveChangesAsync();

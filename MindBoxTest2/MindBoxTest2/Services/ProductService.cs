@@ -20,11 +20,13 @@ namespace MindBoxTest2.Services
         {
             if (model.Name == null) return;
 
-            var product = await _db.Products.FirstOrDefaultAsync(p => p.Name.ToLower() == model.Name.ToLower());
+            var products = _db.Products.ToList();
+            foreach (var p in products)
+            {
+                if (p.Name.ToLower() == model.Name.ToLower()) return;
+            }
 
-            if (product != null) return;
-
-            product = new Product { Name = model.Name };
+            var product = new Product { Name = model.Name };
 
             if (model.Selected != null)
             {
