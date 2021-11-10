@@ -10,165 +10,147 @@ namespace MindBoxTest2.Services
 {
     public class ProductService : IProductService
     {
-        private readonly string _connection;
-        public ProductService(string connectionString)
+        private readonly ApplicationDbContext _db;
+        public ProductService(ApplicationDbContext context)
         {
-            _connection = connectionString;
+            _db = context;
         }
 
         public async Task AddProductAsync(AddProductViewModel model)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            if (model.Name == null) return;
+
+            var product = await _db.Products.FirstOrDefaultAsync(p => p.Name.ToLower() == model.Name.ToLower());
+
+            if (product != null) return;
+
+            product = new Product { Name = model.Name };
+
+            if (model.Selected != null)
             {
-                if (model.Name == null) return;
-
-                var product = await db.Products.FirstOrDefaultAsync(p => p.Name.ToLower() == model.Name.ToLower());
-
-                if (product != null) return;
-
-                product = new Product { Name = model.Name };
-
-                if (model.Selected != null)
+                foreach (var item in model.Selected.ChekList)
                 {
-                    foreach (var item in model.Selected.ChekList)
-                    {
-                        var category = await db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Name == item.Category.Name);
+                    var category = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Name == item.Category.Name);
 
-                        if (item.IsChecked)
-                        {
-                            product.Categories.Add(category);
-                        }
+                    if (item.IsChecked)
+                    {
+                        product.Categories.Add(category);
                     }
                 }
-                db.Products.Add(product);
-
-                await db.SaveChangesAsync();
             }
+            _db.Products.Add(product);
+
+            await _db.SaveChangesAsync();
         }
 
         public async Task DeleteProductAsync(int id)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
-            {
-                var product = await db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
 
-                if (product == null) return;
+            if (product == null) return;
 
-                db.Products.Remove(product);
-                await db.SaveChangesAsync();
-            }
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
         }
 
         public async Task<EditViewModel> EditGetAsync(int id, int page = 1)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
+            var categories = await _db.Categories.Include(s => s.Products).ToListAsync();
+            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Category = c }).ToList() };
+
+            foreach (var item in selected.ChekList)
             {
-                var product = await db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
-                var categories = await db.Categories.Include(s => s.Products).ToListAsync();
-                var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Category = c }).ToList() };
-
-                foreach (var item in selected.ChekList)
+                var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
+                if (product.Categories.Contains(select))
                 {
-                    var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
-                    if (product.Categories.Contains(select))
-                    {
-                        item.IsChecked = true;
-                    }
-                    else
-                    {
-                        item.IsChecked = false;
-                    }
+                    item.IsChecked = true;
                 }
-
-                var model = new EditViewModel() { Page = page, Product = product, Selected = selected };
-
-                return model;
+                else
+                {
+                    item.IsChecked = false;
+                }
             }
+
+            var model = new EditViewModel() { Page = page, Product = product, Selected = selected };
+
+            return model;
         }
  
         public async Task EditPostAsync(EditViewModel model)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            if (model == null) return;
+
+            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == model.Product.Id);
+            var categories = await _db.Categories.Include(s => s.Products).ToListAsync();
+
+            if (product == null) return;
+            product.Name = model.Product.Name;
+
+            if (model.Selected != null)
             {
-                if (model == null) return;
-
-                var product = await db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == model.Product.Id);
-                var categories = await db.Categories.Include(s => s.Products).ToListAsync();
-
-                if (product == null) return;
-                product.Name = model.Product.Name;
-
-                if (model.Selected != null)
+                foreach (var item in model.Selected.ChekList)
                 {
-                    foreach (var item in model.Selected.ChekList)
+                    var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
+                    if (item.IsChecked && !product.Categories.Contains(select))
                     {
-                        var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
-                        if (item.IsChecked && !product.Categories.Contains(select))
-                        {
-                            product.Categories.Add(select);
-                        }
-                        if (!item.IsChecked && product.Categories.Contains(select))
-                        {
-                            product.Categories.Remove(select);
-                        }
+                        product.Categories.Add(select);
+                    }
+                    if (!item.IsChecked && product.Categories.Contains(select))
+                    {
+                        product.Categories.Remove(select);
                     }
                 }
-
-                await db.SaveChangesAsync();
             }
+
+            await _db.SaveChangesAsync();
         }
 
         public async Task<IndexViewModel> IndexAsync(string product, int? category, int page, SortState sortOrder)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
+            int pageSize = 10;
+
+            var products = await _db.Products.Include(p => p.Categories).ToListAsync();
+            var currentCategory = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == category);
+
+            if (currentCategory != null && category != 0)
             {
-                int pageSize = 10;
+                products = currentCategory.Products.ToList();
+            }
 
-                var products = await db.Products.Include(p => p.Categories).ToListAsync();
-                var currentCategory = await db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == category);
+            if (!String.IsNullOrEmpty(product))
+            {
+                products = products.Where(p => p.Name.ToLower().Contains(product.ToLower())).ToList();
+            }
 
-                if (currentCategory != null && category != 0)
-                {
-                    products = currentCategory.Products.ToList();
-                }
+            switch (sortOrder)
+            {
+                case SortState.ProductDesc:
+                    products = products.OrderByDescending(p => p.Name).ToList();
+                    break;
+                default:
+                    products = products.OrderBy(p => p.Name).ToList();
+                    break;
+            }
 
-                if (!String.IsNullOrEmpty(product))
-                {
-                    products = products.Where(p => p.Name.ToLower().Contains(product.ToLower())).ToList();
-                }
+            var count = products.Count();
+            var items = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-                switch (sortOrder)
-                {
-                    case SortState.ProductDesc:
-                        products = products.OrderByDescending(p => p.Name).ToList();
-                        break;
-                    default:
-                        products = products.OrderBy(p => p.Name).ToList();
-                        break;
-                }
-
-                var count = products.Count();
-                var items = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-                IndexViewModel viewModel = new IndexViewModel
-                {
-                    FilterViewModel = new FilterViewModel(db.Products.ToList(), product, db.Categories.ToList(), category),
-                    PageViewModel = new PageViewModel(count, page, pageSize),
-                    SortViewModel = new SortViewModel(sortOrder),
-                    Page = page,
-                    Products = items
-                };
-                return viewModel;
-            } 
+            IndexViewModel viewModel = new IndexViewModel
+            {
+                FilterViewModel = new FilterViewModel(_db.Products.ToList(), product, _db.Categories.ToList(), category),
+                PageViewModel = new PageViewModel(count, page, pageSize),
+                SortViewModel = new SortViewModel(sortOrder),
+                Page = page,
+                Products = items
+            };
+            return viewModel;
         }
 
         public async Task<Product> GetProductAsync(int id)
         {
-            using (ApplicationDbContext db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(_connection).Options))
-            {
-                var product = await db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
-                return product;
-            }
+            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
+            return product;
         }
     }
 }
