@@ -8,7 +8,7 @@ namespace MindBoxTest2.Services
 {
     public interface ICategoryService
     {
-        Task AddCategoryAsync(string name);
+        Task<bool> TryAddCategoryAsync(string name);
 
         Task DeleteCategoryAsync(DeleteCategoryViewModel model);
 

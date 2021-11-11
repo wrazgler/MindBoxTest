@@ -17,19 +17,22 @@ namespace MindBoxTest2.Services
             _db = context;
         }
 
-        public async Task AddCategoryAsync(string name)
+        public async Task<bool> TryAddCategoryAsync(string name)
         {
-            if (name == null) return;
+            if (name == null) return false;
+
             var categories =  _db.Categories.ToList();
             foreach (var c in categories)
             {
-                if (c.Name.ToLower() == name.ToLower()) return;
+                if (c.Name.ToLower() == name.ToLower()) return false;
             }
 
             var category = new Category { Name = name };
             _db.Categories.Add(category);
 
             await _db.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task DeleteCategoryAsync(DeleteCategoryViewModel model)
@@ -38,7 +41,9 @@ namespace MindBoxTest2.Services
             {
                 foreach (var item in model.Selected.ChekList)
                 {
-                    var category = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == item.Category.Id);
+                    var category = await _db.Categories
+                        .Include(c => c.Products)
+                        .FirstOrDefaultAsync(c => c.Id == item.Category.Id);
 
                     if (item.IsChecked && category != null)
                     {
@@ -51,8 +56,17 @@ namespace MindBoxTest2.Services
 
         public async Task<CheckBoxViewModel> GetSelectedAsync()
         {
-            var categories = await _db.Categories.Include(s => s.Products).OrderBy(c => c.Name).ToListAsync();
-            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Category = c }).ToList() };
+            var categories = await _db.Categories
+                .Include(s => s.Products)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            var selected = new CheckBoxViewModel()
+            {
+                ChekList = categories
+                .Select(c => new SelectItem() { Category = c })
+                .ToList()
+            };
             return selected;
         }
     }

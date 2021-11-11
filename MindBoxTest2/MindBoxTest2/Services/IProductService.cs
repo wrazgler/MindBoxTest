@@ -7,7 +7,7 @@ namespace MindBoxTest2.Services
 {
     public interface IProductService
     {
-        Task AddProductAsync(AddProductViewModel model);
+        Task<bool> TryAddProductAsync(AddProductViewModel model);
 
         Task DeleteProductAsync(int id);
 
@@ -15,7 +15,7 @@ namespace MindBoxTest2.Services
 
         Task EditPostAsync(EditViewModel model);
 
-        Task<IndexViewModel> IndexAsync(string product, int? category, int page, SortState sortOrder);
+        Task<IndexViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder);
 
         Task<Product> GetProductAsync(int id);
     }

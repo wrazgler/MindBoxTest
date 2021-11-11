@@ -16,14 +16,15 @@ namespace MindBoxTest2.Services
             _db = context;
         }
 
-        public async Task AddProductAsync(AddProductViewModel model)
+        public async Task<bool> TryAddProductAsync(AddProductViewModel model)
         {
-            if (model.Name == null) return;
+            if (model.Name == null) return false;
 
             var products = _db.Products.ToList();
+
             foreach (var p in products)
             {
-                if (p.Name.ToLower() == model.Name.ToLower()) return;
+                if (p.Name.ToLower() == model.Name.ToLower()) return false;
             }
 
             var product = new Product { Name = model.Name };
@@ -32,7 +33,9 @@ namespace MindBoxTest2.Services
             {
                 foreach (var item in model.Selected.ChekList)
                 {
-                    var category = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Name == item.Category.Name);
+                    var category = await _db.Categories
+                        .Include(c => c.Products)
+                        .FirstOrDefaultAsync(c => c.Name == item.Category.Name);
 
                     if (item.IsChecked)
                     {
@@ -43,11 +46,15 @@ namespace MindBoxTest2.Services
             _db.Products.Add(product);
 
             await _db.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task DeleteProductAsync(int id)
         {
-            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _db.Products
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return;
 
@@ -57,13 +64,26 @@ namespace MindBoxTest2.Services
 
         public async Task<EditViewModel> EditGetAsync(int id, int page = 1)
         {
-            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
-            var categories = await _db.Categories.Include(s => s.Products).ToListAsync();
-            var selected = new CheckBoxViewModel() { ChekList = categories.Select(c => new SelectItem() { Category = c }).ToList() };
+            var product = await _db.Products
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            var categories = await _db.Categories
+                .Include(s => s.Products)
+                .ToListAsync();
+
+            var selected = new CheckBoxViewModel()
+            {
+                ChekList = categories
+                .OrderBy(c => c.Name)
+                .Select(c => new SelectItem() { Category = c })
+                .ToList()
+            };
 
             foreach (var item in selected.ChekList)
             {
                 var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
+
                 if (product.Categories.Contains(select))
                 {
                     item.IsChecked = true;
@@ -83,8 +103,11 @@ namespace MindBoxTest2.Services
         {
             if (model == null) return;
 
-            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == model.Product.Id);
-            var categories = await _db.Categories.Include(s => s.Products).ToListAsync();
+            var product = await _db.Products.Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == model.Product.Id);
+
+            var categories = await _db.Categories.Include(s => s.Products)
+                .ToListAsync();
 
             if (product == null) return;
             product.Name = model.Product.Name;
@@ -94,6 +117,7 @@ namespace MindBoxTest2.Services
                 foreach (var item in model.Selected.ChekList)
                 {
                     var select = categories.FirstOrDefault(c => c.Name == item.Category.Name);
+
                     if (item.IsChecked && !product.Categories.Contains(select))
                     {
                         product.Categories.Add(select);
@@ -108,21 +132,29 @@ namespace MindBoxTest2.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<IndexViewModel> IndexAsync(string product, int? category, int page, SortState sortOrder)
+        public async Task<IndexViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder)
         {
             int pageSize = 10;
 
-            var products = await _db.Products.Include(p => p.Categories).ToListAsync();
-            var currentCategory = await _db.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == category);
+            var products = await _db.Products
+                .Include(p => p.Categories)
+                .ToListAsync();
+
+            var currentCategory = await _db.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == category);
 
             if (currentCategory != null && category != 0)
             {
                 products = currentCategory.Products.ToList();
             }
 
-            if (!String.IsNullOrEmpty(product))
+            if (!string.IsNullOrEmpty(product))
             {
-                products = products.Where(p => p.Name.ToLower().Contains(product.ToLower())).ToList();
+                products = products
+                    .Where(p => p.Name.ToLower()
+                    .Contains(product.ToLower()))
+                    .ToList();
             }
 
             switch (sortOrder)
@@ -138,7 +170,7 @@ namespace MindBoxTest2.Services
             var count = products.Count();
             var items = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            IndexViewModel viewModel = new IndexViewModel
+            var viewModel = new IndexViewModel
             {
                 FilterViewModel = new FilterViewModel(_db.Products.ToList(), product, _db.Categories.ToList(), category),
                 PageViewModel = new PageViewModel(count, page, pageSize),
@@ -151,7 +183,10 @@ namespace MindBoxTest2.Services
 
         public async Task<Product> GetProductAsync(int id)
         {
-            var product = await _db.Products.Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _db.Products
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             return product;
         }
     }

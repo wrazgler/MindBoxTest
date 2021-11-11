@@ -21,9 +21,10 @@ namespace MindBoxTest2.Controllers
         }  
 
         [HttpGet]
-        public async Task<IActionResult> Index(string product, int? category, int page = 1, SortState sortOrder = SortState.ProductAsc)
+        public async Task<IActionResult> Index(string product, int? category, int page = 1,
+            SortState sortOrder = SortState.ProductAsc)
         {
-            var model = await _productService.IndexAsync(product, category, page, sortOrder);
+            var model = await _productService.GetProductsAsync(product, category, page, sortOrder);
             return View(model);
         }
 
@@ -39,7 +40,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> AddProduct(AddProductViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            await _productService.AddProductAsync(model);
+            await _productService.TryAddProductAsync(model);
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -54,7 +55,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> AddCategory(AddCategoryViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            await _categoryService.AddCategoryAsync(model.Name);
+            await _categoryService.TryAddCategoryAsync(model.Name);
             return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
         }
 

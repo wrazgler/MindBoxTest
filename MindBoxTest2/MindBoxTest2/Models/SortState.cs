@@ -3,8 +3,6 @@
     public enum SortState
     {
         ProductAsc,
-        ProductDesc,
-        CategoryAsc,
-        CategoryDesc
+        ProductDesc
     }
 }
