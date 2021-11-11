@@ -4,8 +4,8 @@ namespace MindBoxTest2.ViewModels
 {
     public class SortViewModel
     {
-        public SortState ProductSort { get; private set; }
-        public SortState Current { get; private set; }
+        public SortState ProductSort { get; }
+        public SortState Current { get; }
 
         public SortViewModel(SortState sortOrder)
         {

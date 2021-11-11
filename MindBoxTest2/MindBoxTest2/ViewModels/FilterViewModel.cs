@@ -7,10 +7,10 @@ namespace MindBoxTest2.ViewModels
 {
     public class FilterViewModel
     {
-        public List<Product> Products { get; private set; }
-        public SelectList Categories { get; private set; }
-        public string SelectedProduct { get; private set; }
-        public int? SelectedCategory{ get; private set; }
+        public List<Product> Products { get; }
+        public SelectList Categories { get; }
+        public string SelectedProduct { get; }
+        public int? SelectedCategory{ get; }
         public FilterViewModel(List<Product> products, string product, List<Category> categories, int? category)
         {
             Products = products;

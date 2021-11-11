@@ -18,13 +18,15 @@ namespace MindBoxTest2.Services
 
         public async Task<bool> TryAddProductAsync(AddProductViewModel model)
         {
-            if (model.Name == null) return false;
+            if (model.Name == null)
+                return false;
 
             var products = _db.Products.ToList();
 
             foreach (var p in products)
             {
-                if (p.Name.ToLower() == model.Name.ToLower()) return false;
+                if (p.Name.ToLower() == model.Name.ToLower())
+                    return false;
             }
 
             var product = new Product { Name = model.Name };
@@ -50,16 +52,19 @@ namespace MindBoxTest2.Services
             return true;
         }
 
-        public async Task DeleteProductAsync(int id)
+        public async Task<bool> TryDeleteProductAsync(int id)
         {
             var product = await _db.Products
                 .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product == null) return;
+            if (product == null)
+                return false;
 
             _db.Products.Remove(product);
             await _db.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<EditViewModel> EditGetAsync(int id, int page = 1)
@@ -103,7 +108,8 @@ namespace MindBoxTest2.Services
         {
             if (model == null) return;
 
-            var product = await _db.Products.Include(p => p.Categories)
+            var product = await _db.Products
+                .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == model.Product.Id);
 
             var categories = await _db.Categories.Include(s => s.Products)
@@ -134,7 +140,7 @@ namespace MindBoxTest2.Services
 
         public async Task<IndexViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder)
         {
-            int pageSize = 10;
+            const int pageSize = 10;
 
             var products = await _db.Products
                 .Include(p => p.Categories)
@@ -178,6 +184,7 @@ namespace MindBoxTest2.Services
                 Page = page,
                 Products = items
             };
+
             return viewModel;
         }
 

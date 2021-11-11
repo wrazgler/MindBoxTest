@@ -4,8 +4,8 @@ namespace MindBoxTest2.ViewModels
 {
     public class PageViewModel
     {
-        public int PageNumber { get; private set; }
-        public int TotalPages { get; private set; }
+        public int PageNumber { get; }
+        public int TotalPages { get; }
 
         public PageViewModel(int count, int pageNumber, int pageSize)
         {

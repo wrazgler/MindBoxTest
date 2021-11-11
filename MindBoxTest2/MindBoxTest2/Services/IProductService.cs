@@ -9,7 +9,7 @@ namespace MindBoxTest2.Services
     {
         Task<bool> TryAddProductAsync(AddProductViewModel model);
 
-        Task DeleteProductAsync(int id);
+        Task<bool> TryDeleteProductAsync(int id);
 
         Task<EditViewModel> EditGetAsync(int id, int page = 1);
 

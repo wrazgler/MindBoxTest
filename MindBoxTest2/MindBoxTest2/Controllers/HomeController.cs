@@ -25,6 +25,7 @@ namespace MindBoxTest2.Controllers
             SortState sortOrder = SortState.ProductAsc)
         {
             var model = await _productService.GetProductsAsync(product, category, page, sortOrder);
+
             return View(model);
         }
 
@@ -33,14 +34,18 @@ namespace MindBoxTest2.Controllers
         {
             var selected = await _categoryService.GetSelectedAsync();
             var model = new AddProductViewModel() { Page = page, Selected = selected };
+
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddProduct(AddProductViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
+
             await _productService.TryAddProductAsync(model);
+
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -48,31 +53,39 @@ namespace MindBoxTest2.Controllers
         public IActionResult AddCategory( string previousPage, int id = 1, int page = 1)
         {   
             var model = new AddCategoryViewModel() { Id = id, Page = page, PreviousPage = previousPage };
+
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
-            await _categoryService.TryAddCategoryAsync(model.Name);
-            return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
-        }
+            if (!ModelState.IsValid)
+                return View(model);
 
+            await _categoryService.TryAddCategoryAsync(model.Name);
+
+            return RedirectToAction($"{model.PreviousPage}", "Home", new { id = model.Id, page = model.Page });
+
+        }
 
         [HttpGet]
         public async Task<IActionResult> DeleteProduct(int id, int page = 1)
         {
             var product = await _productService.GetProductAsync(id);
             var model = new DeleteProductViewModel { Product = product, Page = page};
+
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteProduct(DeleteProductViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
-            await _productService.DeleteProductAsync(model.Product.Id);
+            if (!ModelState.IsValid)
+                return View(model);
+
+            await _productService.TryDeleteProductAsync(model.Product.Id);
+
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -81,6 +94,7 @@ namespace MindBoxTest2.Controllers
         {
             var selected = await _categoryService.GetSelectedAsync();
             var model = new DeleteCategoryViewModel() { Page = page, Selected = selected };
+
             return View(model);
         }
 
@@ -88,6 +102,7 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> DeleteCategory(DeleteCategoryViewModel model)
         {
             await _categoryService.DeleteCategoryAsync(model);
+
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
 
@@ -95,14 +110,18 @@ namespace MindBoxTest2.Controllers
         public async Task<IActionResult> Edit(int id, int page = 1)
         {
             var model = await _productService.EditGetAsync(id, page);
+
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(EditViewModel model)
         {
-            if (!ModelState.IsValid) return View(model); 
+            if (!ModelState.IsValid)
+                return View(model);
+
             await _productService.EditPostAsync(model);
+
             return RedirectToAction("Index", "Home", new { page = model.Page });
         }
     }

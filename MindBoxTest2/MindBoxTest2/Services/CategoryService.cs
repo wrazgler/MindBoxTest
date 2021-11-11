@@ -19,12 +19,15 @@ namespace MindBoxTest2.Services
 
         public async Task<bool> TryAddCategoryAsync(string name)
         {
-            if (name == null) return false;
+            if (name == null)
+                return false;
 
             var categories =  _db.Categories.ToList();
+
             foreach (var c in categories)
             {
-                if (c.Name.ToLower() == name.ToLower()) return false;
+                if (c.Name.ToLower() == name.ToLower())
+                    return false;
             }
 
             var category = new Category { Name = name };
@@ -67,6 +70,7 @@ namespace MindBoxTest2.Services
                 .Select(c => new SelectItem() { Category = c })
                 .ToList()
             };
+
             return selected;
         }
     }
