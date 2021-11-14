@@ -21,7 +21,7 @@ namespace MindBoxTest2.Controllers
         }  
 
         [HttpGet]
-        public async Task<IActionResult> Index(string product, int? category, int page = 1,
+        public async Task<IActionResult> GetAllProducts(string product, int? category, int page = 1,
             SortState sortOrder = SortState.ProductAsc)
         {
             var model = await _productService.GetProductsAsync(product, category, page, sortOrder);

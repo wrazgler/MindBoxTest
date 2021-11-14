@@ -45,7 +45,6 @@ namespace MindBoxTest2.Services
                 foreach (var item in model.Selected.ChekList)
                 {
                     var category = await _db.Categories
-                        .Include(c => c.Products)
                         .FirstOrDefaultAsync(c => c.Id == item.Category.Id);
 
                     if (item.IsChecked && category != null)
@@ -60,7 +59,6 @@ namespace MindBoxTest2.Services
         public async Task<CheckBoxViewModel> GetSelectedAsync()
         {
             var categories = await _db.Categories
-                .Include(s => s.Products)
                 .OrderBy(c => c.Name)
                 .ToListAsync();
 

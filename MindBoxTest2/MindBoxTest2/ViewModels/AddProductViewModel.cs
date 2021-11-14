@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-
-using MindBoxTest2.Models;
-
-namespace MindBoxTest2.ViewModels
+﻿namespace MindBoxTest2.ViewModels
 {
     public class AddProductViewModel
     {

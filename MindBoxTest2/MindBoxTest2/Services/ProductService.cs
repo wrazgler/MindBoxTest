@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using MindBoxTest2.Models;
 using MindBoxTest2.ViewModels;
-
+ 
 namespace MindBoxTest2.Services
 {
     public class ProductService : IProductService
@@ -36,7 +36,6 @@ namespace MindBoxTest2.Services
                 foreach (var item in model.Selected.ChekList)
                 {
                     var category = await _db.Categories
-                        .Include(c => c.Products)
                         .FirstOrDefaultAsync(c => c.Name == item.Category.Name);
 
                     if (item.IsChecked)
@@ -55,7 +54,6 @@ namespace MindBoxTest2.Services
         public async Task<bool> TryDeleteProductAsync(int id)
         {
             var product = await _db.Products
-                .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -74,7 +72,6 @@ namespace MindBoxTest2.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             var categories = await _db.Categories
-                .Include(s => s.Products)
                 .ToListAsync();
 
             var selected = new CheckBoxViewModel()
@@ -109,10 +106,9 @@ namespace MindBoxTest2.Services
             if (model == null) return;
 
             var product = await _db.Products
-                .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == model.Product.Id);
 
-            var categories = await _db.Categories.Include(s => s.Products)
+            var categories = await _db.Categories
                 .ToListAsync();
 
             if (product == null) return;
@@ -138,7 +134,7 @@ namespace MindBoxTest2.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<IndexViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder)
+        public async Task<AllProductsViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder)
         {
             const int pageSize = 10;
 
@@ -147,7 +143,6 @@ namespace MindBoxTest2.Services
                 .ToListAsync();
 
             var currentCategory = await _db.Categories
-                .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == category);
 
             if (currentCategory != null && category != 0)
@@ -176,7 +171,7 @@ namespace MindBoxTest2.Services
             var count = products.Count();
             var items = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            var viewModel = new IndexViewModel
+            var viewModel = new AllProductsViewModel
             {
                 FilterViewModel = new FilterViewModel(_db.Products.ToList(), product, _db.Categories.ToList(), category),
                 PageViewModel = new PageViewModel(count, page, pageSize),

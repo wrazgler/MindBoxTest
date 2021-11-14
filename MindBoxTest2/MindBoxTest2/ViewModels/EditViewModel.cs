@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using MindBoxTest2.Models;
+﻿using MindBoxTest2.Models;
 
 namespace MindBoxTest2.ViewModels
 {

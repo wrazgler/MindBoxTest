@@ -4,7 +4,7 @@ using MindBoxTest2.Models;
 
 namespace MindBoxTest2.ViewModels
 {
-    public class IndexViewModel
+    public class AllProductsViewModel
     {
         public int Page { get; set; }
         public IEnumerable<Product> Products { get; set; }
