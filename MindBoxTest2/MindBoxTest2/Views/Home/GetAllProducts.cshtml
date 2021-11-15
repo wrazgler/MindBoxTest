@@ -29,7 +29,7 @@
             </td>
             <td width="60%">
                 <div class="btn-group-vertical">
-                    <a style="color: #0066CC;" asp-action="AddCategory" asp-controller="Home" asp-route-page="@Model.Page" asp-route-previousPage="Index">Добавить категорию</a>
+                    <a style="color: #0066CC;" asp-action="AddCategory" asp-controller="Home" asp-route-page="@Model.Page" asp-route-previousPage="GetAllProducts">Добавить категорию</a>
                 </div>
                 <div class="btn-group-vertical">
                     <a style="margin-left: 50px; color: red;" asp-action="DeleteCategory" asp-controller="Home" asp-route-page="@Model.Page">Удалить категорию</a>
@@ -39,7 +39,7 @@
         </tr>
         <tr>
             <th width="20%">
-                <a asp-action="Index"
+                <a asp-action="GetAllProducts"
                    asp-route-category="@(Model.FilterViewModel.SelectedCategory)"
                    asp-route-page="@(Model.Page)"
                    asp-route-product="@(Model.FilterViewModel.SelectedProduct)"
@@ -75,7 +75,7 @@
 
     </table>
 
-    <page-link page-model="@Model.PageViewModel" page-action="Index"
+    <page-link page-model="@Model.PageViewModel" page-action="GetAllProducts"
                page-url-product="@(Model.FilterViewModel.SelectedProduct)"
                page-url-category="@(Model.FilterViewModel.SelectedCategory)"
                page-url-sortorder="@(Model.SortViewModel.Current)"></page-link>

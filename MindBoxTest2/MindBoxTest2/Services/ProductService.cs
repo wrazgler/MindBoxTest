@@ -134,7 +134,7 @@ namespace MindBoxTest2.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<AllProductsViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder)
+        public async Task<AllProductsViewModel> GetProductsAsync(string product, int category, int page, SortState sortOrder)
         {
             const int pageSize = 10;
 

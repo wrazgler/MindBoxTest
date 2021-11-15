@@ -55,7 +55,7 @@ namespace MindBoxTest2.Services
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=GetAllProducts}/{id?}");
             });
         }
     }

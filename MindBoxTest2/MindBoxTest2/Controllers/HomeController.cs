@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading.Tasks;
 
 using MindBoxTest2.Models;
@@ -21,7 +19,7 @@ namespace MindBoxTest2.Controllers
         }  
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(string product, int? category, int page = 1,
+        public async Task<IActionResult> GetAllProducts(string product, int category, int page = 1,
             SortState sortOrder = SortState.ProductAsc)
         {
             var model = await _productService.GetProductsAsync(product, category, page, sortOrder);
@@ -46,7 +44,7 @@ namespace MindBoxTest2.Controllers
 
             await _productService.TryAddProductAsync(model);
 
-            return RedirectToAction("Index", "Home", new { page = model.Page });
+            return RedirectToAction("GetAllProducts", "Home", new { page = model.Page });
         }
 
         [HttpGet]
@@ -86,7 +84,7 @@ namespace MindBoxTest2.Controllers
 
             await _productService.TryDeleteProductAsync(model.Product.Id);
 
-            return RedirectToAction("Index", "Home", new { page = model.Page });
+            return RedirectToAction("GetAllProducts", "Home", new { page = model.Page });
         }
 
         [HttpGet]
@@ -103,7 +101,7 @@ namespace MindBoxTest2.Controllers
         {
             await _categoryService.DeleteCategoryAsync(model);
 
-            return RedirectToAction("Index", "Home", new { page = model.Page });
+            return RedirectToAction("GetAllProducts", "Home", new { page = model.Page });
         }
 
         [HttpGet]
@@ -122,7 +120,7 @@ namespace MindBoxTest2.Controllers
 
             await _productService.EditPostAsync(model);
 
-            return RedirectToAction("Index", "Home", new { page = model.Page });
+            return RedirectToAction("GetAllProducts", "Home", new { page = model.Page });
         }
     }
 }

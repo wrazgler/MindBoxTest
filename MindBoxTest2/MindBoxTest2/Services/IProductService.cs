@@ -15,7 +15,7 @@ namespace MindBoxTest2.Services
 
         Task EditPostAsync(EditViewModel model);
 
-        Task<AllProductsViewModel> GetProductsAsync(string product, int? category, int page, SortState sortOrder);
+        Task<AllProductsViewModel> GetProductsAsync(string product, int category, int page, SortState sortOrder);
 
         Task<Product> GetProductAsync(int id);
     }

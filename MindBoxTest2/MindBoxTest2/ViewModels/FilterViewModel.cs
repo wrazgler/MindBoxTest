@@ -11,7 +11,7 @@ namespace MindBoxTest2.ViewModels
         public SelectList Categories { get; }
         public string SelectedProduct { get; }
         public int? SelectedCategory{ get; }
-        public FilterViewModel(List<Product> products, string product, List<Category> categories, int? category)
+        public FilterViewModel(List<Product> products, string product, List<Category> categories, int category)
         {
             Products = products;
             SelectedProduct = product;

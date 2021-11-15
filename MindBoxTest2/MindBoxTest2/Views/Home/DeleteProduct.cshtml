@@ -43,7 +43,7 @@
             </div>
             <div class=" form-group text-center">
                 <input type="submit" class="btn btn-danger btn-custom" value="Удалить" />
-                <a class="btn btn-outline-secondary btn-custom" asp-action="Index" asp-controller="Home" asp-route-page="@Model.Page">Назад</a>
+                <a class="btn btn-outline-secondary btn-custom" asp-action="GetAllProducts" asp-controller="Home" asp-route-page="@Model.Page">Назад</a>
             </div>
         </form>
     }
@@ -53,7 +53,7 @@
             <h2>Продукт не существует</h2>
         </div>
         <div class="form-group text-center">
-            <a class="btn btn-lg btn-primary" asp-action="Index" asp-controller="Home">Назад</a>
+            <a class="btn btn-lg btn-primary" asp-action="GetAllProducts" asp-controller="Home">Назад</a>
         </div>
     }
 </div>
